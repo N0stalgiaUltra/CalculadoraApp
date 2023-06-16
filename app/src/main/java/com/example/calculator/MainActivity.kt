@@ -65,7 +65,8 @@ sealed class CalculatorOperation(val symbol: String ){
 data class CalculatorState(
     val num1: String = "",
     val num2: String = "",
-    val operation: CalculatorOperation? = null
+    val operation: CalculatorOperation? = null,
+    val result: Boolean = false
 )
 
 //View Model serve para atualizar os estados
@@ -98,7 +99,8 @@ class CalculatorViewModel: ViewModel(){
             state = state.copy(
                 num1 = result.toString().take(15),
                 num2 = "",
-                operation = null
+                operation = null,
+                result = true
             )
         }
 
@@ -121,8 +123,8 @@ class CalculatorViewModel: ViewModel(){
             }
             return
         }
-        //5.5.* -> 5.5 * 0.5 =
-        if(state.operation != null&&!state.num2.contains(".")){
+        if(state.operation != null &&
+            !state.num2.contains(".")){
             if(state.num2.isBlank() ){
                 state = state.copy(
                     num2 = "0"+"."
@@ -148,14 +150,26 @@ class CalculatorViewModel: ViewModel(){
     }
 
     private fun enterNumber(number: Int) {
-       if(state.operation == null)
+        //1+1 = 2 -> num 1= 2
+        //
+       if(state.operation == null )
        {
            if(state.num1.length >= 8)
                 return
 
-           state = state.copy(
-               num1 = state.num1 + number
-           )
+           if(state.result)
+           {
+               state = state.copy(
+                   num1 = number.toString(),
+                   result = false)
+
+           }
+           else{
+               state = state.copy(
+                   num1 = state.num1 + number)
+           }
+
+
            return
        }
         if(state.num2.length >= 8)
