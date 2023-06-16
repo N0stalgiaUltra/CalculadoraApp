@@ -80,8 +80,6 @@ class CalculatorViewModel: ViewModel(){
             is CalculatorAction.Decimal -> enterDecimal()
             is CalculatorAction.Calculate -> enterCalculate()
             is CalculatorAction.Clear-> state = CalculatorState() //reseta o estado
-
-
         }
     }
 
@@ -141,6 +139,8 @@ class CalculatorViewModel: ViewModel(){
     }
 
     private fun enterOperation(operation: CalculatorOperation) {
+        println("Enter Operation Clicado")
+
         if(state.num1.isNotBlank()){
             //atualiza o estado gerando uma copia com a nova operação
             state = state.copy(operation = operation)
@@ -166,8 +166,7 @@ class CalculatorViewModel: ViewModel(){
     }
 }
 class MainActivity : ComponentActivity() {
-    private var currentNumber: String = ""
-    private var currentOperator: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -175,12 +174,14 @@ class MainActivity : ComponentActivity() {
                 val viewModel = viewModel<CalculatorViewModel>()
                 val state = viewModel.state
                 val buttonSpacing = 8.dp
+
                 Calculator(state, modifier = Modifier, buttonSpacing, viewModel)
             }
         }
     }
 
 }
+
 @Composable
 private fun Calculator(
     state: CalculatorState,
@@ -189,25 +190,30 @@ private fun Calculator(
     viewModel: CalculatorViewModel
 ){
 
-    Box(modifier = modifier){
+    Box(modifier = Modifier.fillMaxSize()
+        .background(Color.DarkGray)
+        .padding(16.dp)
+    ){
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
                 verticalArrangement = Arrangement.spacedBy(buttonSpacing)
         ) {
-            Text(text = state.num1 + (state.operation?: "") + state.num2,
-                textAlign = TextAlign.Center,
+            Text(
+                text = state.num1 + (state.operation?.symbol ?: "") + state.num2,
+                //text = "TEXT",
+                textAlign = TextAlign.End,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 32.dp),
-                maxLines = 2,
-                fontSize = 80.sp,
                 color = Color.White,
-                fontWeight = FontWeight.Light
+                fontWeight = FontWeight.Light,
+                maxLines = 2,
+                fontSize = 80.sp
             )
 
-            SetButtons(onAction = viewModel::onAction)
+            SetButtons(viewModel)
         }
     }
 }
@@ -234,7 +240,7 @@ private fun SetHeader() {
 
 
 @Composable
-private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
+private fun SetButtons(viewModel: CalculatorViewModel) {
         Row(modifier = Modifier.padding(8.dp)) {
             CreateButtons(text = "C",
                 modifier = Modifier
@@ -242,7 +248,8 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(2f)
                     .weight(2f),
                 onClick = {
-                    onAction(CalculatorAction.Clear)
+
+                    viewModel.onAction(CalculatorAction.Clear)
                 }
             )
             CreateButtons(text = "=",
@@ -251,7 +258,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(2f)
                     .weight(2f),
                 onClick = {
-                    onAction(CalculatorAction.Calculate)
+                    viewModel.onAction(CalculatorAction.Calculate)
                 }
             )
         }
@@ -263,7 +270,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(1))
+                    viewModel.onAction(CalculatorAction.Number(1))
                 }
             )
             CreateButtons(text = "2",
@@ -272,7 +279,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(2))
+                    viewModel.onAction(CalculatorAction.Number(2))
                 }
             )
             CreateButtons(text = "3",
@@ -281,7 +288,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(3))
+                    viewModel.onAction(CalculatorAction.Number(3))
                 }
             )
             CreateButtons(text = "+",
@@ -290,7 +297,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Operation(CalculatorOperation.Add))
+                    viewModel.onAction(CalculatorAction.Operation(CalculatorOperation.Add))
                 }
             )
         }
@@ -301,7 +308,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(4))
+                    viewModel.onAction(CalculatorAction.Number(4))
                 }
             )
             CreateButtons(text = "5",
@@ -310,7 +317,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(5))
+                    viewModel.onAction(CalculatorAction.Number(5))
                 }
             )
             CreateButtons(text = "6",
@@ -319,7 +326,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(6))
+                    viewModel.onAction(CalculatorAction.Number(6))
                 }
             )
             CreateButtons(text = "-",
@@ -328,7 +335,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Operation(CalculatorOperation.Sub))
+                    viewModel.onAction(CalculatorAction.Operation(CalculatorOperation.Sub))
                 }
             )
         }
@@ -339,7 +346,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(7))
+                    viewModel.onAction(CalculatorAction.Number(7))
                 }
             )
             CreateButtons(text = "8",
@@ -348,7 +355,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(8))
+                    viewModel.onAction(CalculatorAction.Number(8))
                 }
             )
             CreateButtons(text = "9",
@@ -357,7 +364,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Number(9))
+                    viewModel.onAction(CalculatorAction.Number(9))
                 }
             )
             CreateButtons(text = "*",
@@ -366,7 +373,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Operation(CalculatorOperation.Mul))
+                    viewModel.onAction(CalculatorAction.Operation(CalculatorOperation.Mul))
                 }
             )
         }
@@ -377,7 +384,7 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(2f)
                     .weight(2f),
                 onClick = {
-                    onAction(CalculatorAction.Number(0))
+                    viewModel.onAction(CalculatorAction.Number(0))
                 }
             )
             CreateButtons(text = ".",
@@ -386,16 +393,16 @@ private fun SetButtons(onAction: (CalculatorAction)-> Unit) {
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Decimal)
+                    viewModel.onAction(CalculatorAction.Decimal)
                 }
             )
-            CreateButtons(text = "+",
+            CreateButtons(text = "/",
                 modifier = Modifier
                     .background(NewRed)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
-                    onAction(CalculatorAction.Operation(CalculatorOperation.Div))
+                    viewModel.onAction(CalculatorAction.Operation(CalculatorOperation.Div))
                 }
             )
         }
@@ -409,13 +416,13 @@ private fun CreateButtons(text: String, modifier: Modifier, onClick: ()-> Unit){
         //Não passa o modifier do param pois existem botões com shapes diferentes
         modifier = Modifier
             .clip(CircleShape)
-            .clickable { onClick }
+            .clickable { onClick() }
             .then(modifier) //aplica as mudanças ao modifier do param
     ){
         Text(
             text = text,
             fontSize = 36.sp,
-            color = Color.White
+            color = Color.Black
 
         )
     }
