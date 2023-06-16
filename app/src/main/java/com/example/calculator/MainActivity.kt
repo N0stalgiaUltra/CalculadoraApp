@@ -107,30 +107,30 @@ class CalculatorViewModel: ViewModel(){
 
     private fun enterDecimal() {
         if(state.operation == null &&
-            !state.num1.contains(",")
+            !state.num1.contains(".")
         ){
             if(state.num1.isBlank()){
                 state = state.copy(
-                    num1 = "0"+","
+                    num1 = "0"+"."
                 )
             }
             else{
                 state = state.copy(
-                    num1 = state.num1 + ","
+                    num1 = state.num1 + "."
                 )
             }
             return
         }
-
-        if(!state.num2.contains(",")){
-            if(state.num2.isBlank()){
+        //5.5.* -> 5.5 * 0.5 =
+        if(state.operation != null&&!state.num2.contains(".")){
+            if(state.num2.isBlank() ){
                 state = state.copy(
-                    num2 = "0"+","
+                    num2 = "0"+"."
                 )
             }
             else{
                 state = state.copy(
-                    num2 = state.num2 + ","
+                    num2 = state.num2 + "."
                 )
             }
             return
@@ -202,7 +202,6 @@ private fun Calculator(
         ) {
             Text(
                 text = state.num1 + (state.operation?.symbol ?: "") + state.num2,
-                //text = "TEXT",
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -241,7 +240,7 @@ private fun SetHeader() {
 
 @Composable
 private fun SetButtons(viewModel: CalculatorViewModel) {
-        Row(modifier = Modifier.padding(8.dp)) {
+        Row(modifier = Modifier.padding(16.dp)) {
             CreateButtons(text = "C",
                 modifier = Modifier
                     .background(NewCyan)
