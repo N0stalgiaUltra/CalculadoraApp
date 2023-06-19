@@ -38,13 +38,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calculator.ui.theme.CalculatorTheme
 import com.example.calculator.ui.theme.NewCyan
+import com.example.calculator.ui.theme.NewGold
 import com.example.calculator.ui.theme.NewRed
+import com.example.calculator.ui.theme.NewScarlet
 
 sealed class CalculatorAction{
     data class Number(val number: Int): CalculatorAction()
@@ -129,8 +132,8 @@ class CalculatorViewModel: ViewModel(){
         if (number1 != null && number2 != null) {
             if (secondOperator) {
                 if (number3 != null) {
-                    result = CalculateLogic(state.operation2!!, number2, number3)
-                    result = CalculateLogic(state.operation!!, number1, result)
+                    result = calculateLogic(state.operation2!!, number2, number3)
+                    result = calculateLogic(state.operation!!, number1, result)
 
 
                     state = state.copy(
@@ -141,13 +144,11 @@ class CalculatorViewModel: ViewModel(){
                         operation2 = null,
                         result = true
                     )
-                } else //se num3 for null, realizar operaçao sem ele, como calc de iOS
-                {
                 }
             } else {
                 if(number3 != null){
-                    result = CalculateLogic(state.operation!!, number1, number2)
-                    result = CalculateLogic(state.operation2!!, result, number3)
+                    result = calculateLogic(state.operation!!, number1, number2)
+                    result = calculateLogic(state.operation2!!, result, number3)
 
 
                     state = state.copy(
@@ -160,7 +161,7 @@ class CalculatorViewModel: ViewModel(){
                     )
                 }
                 else {
-                    result = CalculateLogic(state.operation!!, number1, number2)
+                    result = calculateLogic(state.operation!!, number1, number2)
                     state = state.copy(
                         num1 = result.toString().take(15),
                         num2 = "",
@@ -173,7 +174,7 @@ class CalculatorViewModel: ViewModel(){
         }
     }
 
-    private fun CalculateLogic(op : CalculatorOperation, num1: Double, num2: Double): Double {
+    private fun calculateLogic(op : CalculatorOperation, num1: Double, num2: Double): Double {
         var result = 0.0
         result = when (op) {
             is CalculatorOperation.Add -> num1 + num2
@@ -271,7 +272,6 @@ class CalculatorViewModel: ViewModel(){
                num3 = state.num3 + number
            )
        }
-
     }
 }
 class MainActivity : ComponentActivity() {
@@ -299,7 +299,8 @@ private fun Calculator(
     viewModel: CalculatorViewModel
 ){
 
-    Box(modifier = Modifier.fillMaxSize()
+    Box(modifier = Modifier
+        .fillMaxSize()
         .background(Color.DarkGray)
         .padding(16.dp)
     ){
@@ -318,8 +319,8 @@ private fun Calculator(
                     .padding(vertical = 32.dp),
                 color = Color.White,
                 fontWeight = FontWeight.Light,
-                maxLines = 2,
-                fontSize = 80.sp
+                maxLines = 1,
+                fontSize = 75.sp
             )
 
             SetButtons(viewModel)
@@ -353,7 +354,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
         Row(modifier = Modifier.padding(16.dp)) {
             CreateButtons(text = "C",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(Color.White)
                     .aspectRatio(2f)
                     .weight(2f),
                 onClick = {
@@ -363,7 +364,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "=",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(Color.White)
                     .aspectRatio(2f)
                     .weight(2f),
                 onClick = {
@@ -375,7 +376,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
         Row(modifier = Modifier.padding(8.dp)) {
             CreateButtons(text = "1",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -384,7 +385,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "2",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -393,7 +394,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "3",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -402,7 +403,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "+",
                 modifier = Modifier
-                    .background(NewRed)
+                    .background(NewScarlet)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -413,7 +414,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
         Row(modifier = Modifier.padding(8.dp)) {
             CreateButtons(text = "4",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -422,7 +423,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "5",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -431,7 +432,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "6",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -440,7 +441,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "-",
                 modifier = Modifier
-                    .background(NewRed)
+                    .background(NewScarlet)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -451,7 +452,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
         Row(modifier = Modifier.padding(8.dp)) {
             CreateButtons(text = "7",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -460,7 +461,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "8",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -469,7 +470,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "9",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -478,7 +479,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "*",
                 modifier = Modifier
-                    .background(NewRed)
+                    .background(NewScarlet)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -489,7 +490,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
         Row(modifier = Modifier.padding(8.dp)) {
             CreateButtons(text = "0",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(2f)
                     .weight(2f),
                 onClick = {
@@ -498,7 +499,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = ".",
                 modifier = Modifier
-                    .background(NewCyan)
+                    .background(NewGold)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {
@@ -507,7 +508,7 @@ private fun SetButtons(viewModel: CalculatorViewModel) {
             )
             CreateButtons(text = "/",
                 modifier = Modifier
-                    .background(NewRed)
+                    .background(NewScarlet)
                     .aspectRatio(1f)
                     .weight(1f),
                 onClick = {

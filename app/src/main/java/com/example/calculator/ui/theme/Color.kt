@@ -12,3 +12,6 @@ val Pink40 = Color(0xFF7D5260)
 
 val NewCyan = Color(0xff97ffff)
 val NewRed = Color(0xffff0033)
+val NewGold = Color(0xffffd700)
+val NewScarlet = Color(0xffd4271b)
+
