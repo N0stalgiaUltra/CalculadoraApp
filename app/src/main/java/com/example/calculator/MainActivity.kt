@@ -51,7 +51,6 @@ sealed class CalculatorAction{
     object Clear: CalculatorAction()
     object Decimal: CalculatorAction()
     object Calculate: CalculatorAction()
-
     data class Operation(val operation: CalculatorOperation): CalculatorAction()
 }
 
@@ -65,8 +64,12 @@ sealed class CalculatorOperation(val symbol: String ){
 data class CalculatorState(
     val num1: String = "",
     val num2: String = "",
+    val num3: String = "",
     val operation: CalculatorOperation? = null,
+    val operation2: CalculatorOperation? = null,
     val result: Boolean = false
+
+
 )
 
 //View Model serve para atualizar os estados
@@ -84,27 +87,102 @@ class CalculatorViewModel: ViewModel(){
         }
     }
 
+    //1+2
+    //1+2*3 -> 7 != 1+2*3 = 9
     private fun enterCalculate() {
-        val number1 = state.num1.toDoubleOrNull()
-        val number2 = state.num2.toDoubleOrNull()
+        //se o 2o operador é * ou /, prioridade maior
+        //se não, não tem prioridade
 
-        if(number1 != null && number2 != null){
-            val result = when(state.operation){
-                is CalculatorOperation.Add -> number1 + number2
-                is CalculatorOperation.Sub -> number1 - number2
-                is CalculatorOperation.Mul -> number1 * number2
-                is CalculatorOperation.Div -> number1 / number2
-                null -> return
+        //um operador
+        //1+1 => 2
+
+        //dois operadores
+        // 2+2*3 => 8
+        // 1*2+3 => 5
+        // 1+2*3 => 7
+
+        if(state.operation != null){
+            //conta simples, com um operador
+            if(state.operation2 == null)
+                Calculating(false)
+            //conta com dois operadores
+            else{
+                //prioridade do segundo operador
+                if(state.operation2!!.symbol == "*" || state.operation2!!.symbol == "/"){
+                    Calculating(true)
+                }
+                else{
+                    Calculating(false)
+                    //Calculating(false)
+                }
             }
-            state = state.copy(
-                num1 = result.toString().take(15),
-                num2 = "",
-                operation = null,
-                result = true
-            )
         }
 
+    }
 
+    private fun Calculating(secondOperator: Boolean) {
+        val number1 = state.num1.toDoubleOrNull()
+        val number2 = state.num2.toDoubleOrNull()
+        val number3 = state.num3.toDoubleOrNull()
+        var result: Double = 0.0
+
+        if (number1 != null && number2 != null) {
+            if (secondOperator) {
+                if (number3 != null) {
+                    result = CalculateLogic(state.operation2!!, number2, number3)
+                    result = CalculateLogic(state.operation!!, number1, result)
+
+
+                    state = state.copy(
+                        num1 = result.toString().take(15),
+                        num2 = "",
+                        num3 = "",
+                        operation = null,
+                        operation2 = null,
+                        result = true
+                    )
+                } else //se num3 for null, realizar operaçao sem ele, como calc de iOS
+                {
+                }
+            } else {
+                if(number3 != null){
+                    result = CalculateLogic(state.operation!!, number1, number2)
+                    result = CalculateLogic(state.operation2!!, result, number3)
+
+
+                    state = state.copy(
+                        num1 = result.toString().take(15),
+                        num2 = "",
+                        num3 = "",
+                        operation = null,
+                        operation2 = null,
+                        result = true
+                    )
+                }
+                else {
+                    result = CalculateLogic(state.operation!!, number1, number2)
+                    state = state.copy(
+                        num1 = result.toString().take(15),
+                        num2 = "",
+                        operation = null,
+                        result = true
+                    )
+                }
+            }
+
+        }
+    }
+
+    private fun CalculateLogic(op : CalculatorOperation, num1: Double, num2: Double): Double {
+        var result = 0.0
+        result = when (op) {
+            is CalculatorOperation.Add -> num1 + num2
+            is CalculatorOperation.Sub -> num1 - num2
+            is CalculatorOperation.Mul -> num1 * num2
+            is CalculatorOperation.Div -> num1 / num2
+            null -> 0.0
+        }
+        return result
     }
 
     private fun enterDecimal() {
@@ -143,16 +221,22 @@ class CalculatorViewModel: ViewModel(){
     private fun enterOperation(operation: CalculatorOperation) {
         println("Enter Operation Clicado")
 
-        if(state.num1.isNotBlank()){
+        // Primeira OP: num1 != null e num2 == null
+        // Segunda OP: num2!= null e num3 == null
+
+
+        if(state.num1.isNotBlank() && state.num2.isBlank()){
             //atualiza o estado gerando uma copia com a nova operação
             state = state.copy(operation = operation)
         }
+
+        if(state.num2.isNotBlank() && state.num3.isBlank())
+            state = state.copy(operation2 = operation)
     }
 
     private fun enterNumber(number: Int) {
-        //1+1 = 2 -> num 1= 2
-        //
-       if(state.operation == null )
+        //Adicionar primeiro num
+       if(state.operation == null && state.operation2 == null)
        {
            if(state.num1.length >= 8)
                 return
@@ -172,11 +256,22 @@ class CalculatorViewModel: ViewModel(){
 
            return
        }
-        if(state.num2.length >= 8)
-            return
-        state = state.copy(
-            num2 = state.num2 + number
-        )
+       //Adicionar o segundo num
+       else if(state.operation != null && state.operation2 == null){
+           if(state.num2.length >= 8)
+               return
+           state = state.copy(
+               num2 = state.num2 + number
+           )
+       }
+        else{
+           if(state.num3.length >= 8)
+               return
+           state = state.copy(
+               num3 = state.num3 + number
+           )
+       }
+
     }
 }
 class MainActivity : ComponentActivity() {
@@ -215,7 +310,8 @@ private fun Calculator(
                 verticalArrangement = Arrangement.spacedBy(buttonSpacing)
         ) {
             Text(
-                text = state.num1 + (state.operation?.symbol ?: "") + state.num2,
+                text = state.num1 + (state.operation?.symbol ?: "") + state.num2 +
+                        (state.operation2?.symbol ?: "") + state.num3,
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .fillMaxWidth()
